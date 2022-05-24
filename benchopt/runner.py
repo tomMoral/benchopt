@@ -51,14 +51,18 @@ def run_one_resolution(objective, solver, meta, stop_val):
     t_start = time.perf_counter()
     solver.run(stop_val)
     delta_t = time.perf_counter() - t_start
+    call_overhead = solver._empty_run_overhead
+    delta_t -= call_overhead
     beta_hat_i = solver.get_result()
     objective_dict = objective(beta_hat_i)
 
     # Add system info in results
     info = get_sys_info()
 
-    return dict(**meta, stop_val=stop_val, time=delta_t,
-                **objective_dict, **info)
+    return dict(
+        **meta, stop_val=stop_val, time=delta_t, call_overhead=call_overhead,
+        **objective_dict, **info
+    )
 
 
 def run_one_to_cvg(benchmark, objective, solver, meta, stopping_criterion,

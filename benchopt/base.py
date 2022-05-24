@@ -85,6 +85,12 @@ class BaseSolver(ParametrizedNameMixin, DependenciesMixin, ABC):
         self._objective = objective
         objective_dict = objective.to_dict()
 
+        # Attribute to store the overhead of calling the solver.
+        # This is used in particular for other languages solvers, to allow for
+        # fair evaluation of the performance, without the overhead due to
+        # calling the solver in python.
+        self._empty_run_overhead = 0
+
         # Check if the objective is compatible with the solver
         skip, reason = self.skip(**objective_dict)
         if skip:
