@@ -59,7 +59,7 @@
                             <div class="mt-1 rounded-md shadow-sm">
                                 <select id="objective_column" class="focus:ring-blue-500 focus:border-blue-500 block w-full h-8 px-4 sm:text-sm border-gray-300 rounded-md" onchange="setState({objective_column: this.value})">
                                     % for obj_col in result['obj_cols']:
-                                    <option value="${obj_col}">${obj_col}</option>
+                                    <option value="${obj_col}"${" selected" if obj_col == result["default_objective"]  else ""}>${obj_col}</option>
                                     %endfor
                                 </select>
                             </div>
@@ -69,7 +69,7 @@
                             <div class="mt-1 rounded-md shadow-sm">
                                 <select id="plot_kind" class="focus:ring-blue-500 focus:border-blue-500 block w-full h-8 px-4 sm:text-sm border-gray-300 rounded-md" onchange="setState({plot_kind: this.value})">
                                     % for kind in result['kinds']:
-                                    <option value="${kind}">${kind}</option>
+                                    <option value="${kind}" ${" selected" if kind == result["default_kind"] else ""}>${kind}</option>
                                     %endfor
                                 </select>
                             </div>
@@ -78,10 +78,10 @@
                             <label for="change_scaling" class="block text-sm font-medium text-white">Scale</label>
                             <div class="mt-1 rounded-md shadow-sm">
                                 <select id="change_scaling" class="focus:ring-blue-500 focus:border-blue-500 block w-full h-8 px-4 sm:text-sm border-gray-300 rounded-md" onchange="setState({scale: this.value})">
-                                    <option value="semilog-y">semilog-y</option>
-                                    <option value="semilog-x">semilog-x</option>
-                                    <option value="loglog">loglog</option>
-                                    <option value="linear">linear</option>
+                                    <option value="semilog-y"${" selected" if result["default_scale"] == "semilog-y" else ""}>semilog-y</option>
+                                    <option value="semilog-x"${" selected" if result["default_scale"] == "semilog-x" else ""}>semilog-x</option>
+                                    <option value="loglog"${" selected" if result["default_scale"] == "loglog" else ""}>loglog</option>
+                                    <option value="linear"${" selected" if result["default_scale"] == "linear" else ""}>linear</option>
                                 </select>
                             </div>
                         </div>

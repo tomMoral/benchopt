@@ -1,4 +1,5 @@
 import os
+import copy
 import stat
 import warnings
 import configparser
@@ -42,6 +43,12 @@ DEFAULT_GLOBAL_CONFIG = {
 
 DEFAULT_BENCHMARK_CONFIG = {
     'plots': list(PLOT_KINDS),
+    'default_plot_type': 'suboptimality_curve',
+    'default_plot_objective': 'value',
+    'default_plot_scale': 'semilogy',
+    'default_plot_x_axis': 'time',
+    'default_plot_xlim': None,
+    'default_plot_ylim': None,
 }
 """
 * ``plots``, *list*: Select the plots to display for the benchmark. Should be
@@ -53,6 +60,24 @@ DEFAULT_BENCHMARK_CONFIG = {
     plots =
         suboptimality_curve
         bar_chart
+* ``default_plot_type``, *str*: Select the default plot displayed when opening
+  the benchmark result. Should be valid a plot kind.
+  Default to ``'suboptimality_curve'``.
+* ``default_plot_objective``, *str*: Select the default objective to display
+  for the benchmark. Should be an existing column from the dataframe.
+  Default to ``'value'``.
+* ``default_plot_scale``, *str*: Select the default axes' scale displayed.
+  Should be in ``{'linear', 'loglog', 'semilog-x', 'semilog-y'}``.
+  Default to ``'semilogy'``.
+* ``default_plot_x_axis ``, *str*: Select the default x-axis for the benchmark.
+  Should be either ``time`` or a stopping strategy from a solver.
+  Default to ``'time'``.
+* ``default_plot_xlim``, *tuple*: Select the default limits of the x-axis. This
+  should be a tuple. Can be set to ``None`` for auto-scaling.
+  Default to ``None``.
+* ``default_plot_ylim``, *tuple*: Select the default limits of the y-axis. This
+  should be a tuple. Can be set to ``None`` for auto-scaling.
+  Default to ``None``.
 """
 
 
