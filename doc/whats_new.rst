@@ -20,12 +20,12 @@ CLI
 - ``-s`` / ``-d`` now accept a path to a ``.py`` file, loading the
   ``Solver`` / ``Dataset`` directly from that file (even outside the
   benchmark's ``solvers/`` / ``datasets/`` folders), with optional
-  ``file.py[param=value]`` sub-selection. By `Thomas Moreau`_ (:gh:`1002`)
+  ``file.py[param=value]`` sub-selection. By `Thomas Moreau`_ (:gh:`1003`)
 
 - ``--output`` now accepts a path: a value containing a path separator is
   written verbatim (leaving the benchmark folder untouched), while a bare
   name still lands in ``<BENCHMARK>/outputs/``.
-  By `Thomas Moreau`_ (:gh:`1002`)
+  By `Thomas Moreau`_ (:gh:`1003`)
 
 - Add ``benchopt info -f <result_file>`` (repeatable, or ``-f all``) to
   summarize result file(s) instead of listing benchmark solvers/datasets;
