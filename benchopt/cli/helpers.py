@@ -401,9 +401,14 @@ def info(benchmark, solver_names, dataset_names, result_filenames=(),
     benchmark.check_dataset_patterns(dataset_names)
     benchmark.check_solver_patterns(solver_names)
 
-    # get solvers and datasets in the benchmark
-    all_solvers = benchmark.get_solvers()
-    all_datasets = benchmark.get_datasets()
+    # get solvers and datasets in the benchmark, including any selected from a
+    # file path so `info -s /path/to/solver.py` lists that component too.
+    all_solvers = benchmark._add_file_classes(
+        benchmark.get_solvers(), solver_names, "Solver"
+    )
+    all_datasets = benchmark._add_file_classes(
+        benchmark.get_datasets(), dataset_names, "Dataset"
+    )
     # enable verbosity if any environment was provided
     if env_name is not None and env_name != 'False':
         verbose = True

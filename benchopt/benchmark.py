@@ -18,6 +18,7 @@ from .utils.dynamic_modules import _load_class_from_module
 from .utils.parametrized_name_mixin import sanitize
 from .utils.parametrized_name_mixin import _get_used_parameters
 from .utils.parametrized_name_mixin import _check_patterns
+from .utils.parametrized_name_mixin import _extract_options, is_file_selector
 
 from .utils.terminal_output import colorify
 from .utils.terminal_output import GREEN, YELLOW
@@ -218,8 +219,11 @@ class Benchmark:
 
     def check_solver_patterns(self, solver_patterns, class_only=False):
         "Check that the patterns are valid and return selected configurations."
+        all_solvers = self._add_file_classes(
+            self.get_solvers(), solver_patterns, "Solver"
+        )
         return _check_patterns(
-            self.get_solvers(), solver_patterns, name_type='solver',
+            all_solvers, solver_patterns, name_type='solver',
             class_only=class_only
         )
 
@@ -300,10 +304,37 @@ class Benchmark:
 
     def check_dataset_patterns(self, dataset_patterns, class_only=False):
         "Check that the patterns are valid and return selected configurations."
+        all_datasets = self._add_file_classes(
+            self.get_datasets(), dataset_patterns, "Dataset"
+        )
         return _check_patterns(
-            self.get_datasets(), dataset_patterns, name_type='dataset',
+            all_datasets, dataset_patterns, name_type='dataset',
             class_only=class_only
         )
+
+    def _add_file_classes(self, all_classes, patterns, class_name):
+        """Load classes for selector tokens that point to a ``.py`` file.
+
+        A token ending in ``.py`` (optionally with a ``file.py[param=value]``
+        bracket) loads the class directly from that file, even outside the
+        benchmark's ``solvers/`` / ``datasets/`` folders. Its ``name`` is set
+        to the selector token so it is matched exactly by ``_check_patterns``
+        — sidestepping name collisions and glob characters in a name.
+        """
+        if patterns is not None and not isinstance(patterns, (list, tuple)):
+            patterns = [patterns]
+        extra = []
+        for pattern in (patterns or []):
+            if not is_file_selector(pattern):
+                continue
+            filename = _extract_options(pattern)[0]
+            path = Path(filename)
+            if not path.is_file():
+                raise click.BadParameter(f"Could not find file: {path}")
+            cls = _load_class_from_module(self.benchmark_dir, path, class_name)
+            cls.name = filename
+            extra.append(cls)
+        return all_classes + extra
 
     def _get_plots_classes(self):
         "List all available custom plot classes for the benchmark"

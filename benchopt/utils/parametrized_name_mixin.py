@@ -383,6 +383,18 @@ def _extract_options(name):
             )
 
 
+def is_file_selector(pattern):
+    """Return True if a selector token points to a ``.py`` file.
+
+    The bracketed parameter part (``file.py[param=value]``) is ignored: only
+    the basename is inspected, so a selector resolves to a file as soon as its
+    name part ends with ``.py``.
+    """
+    if not isinstance(pattern, str):
+        return False
+    return _extract_options(pattern)[0].endswith(".py")
+
+
 def is_matched(name, include_patterns=None, default=True):
     """Check if a certain name is matched by any pattern in include_patterns.
 
