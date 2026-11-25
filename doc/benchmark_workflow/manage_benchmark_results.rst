@@ -26,6 +26,8 @@ The DataFrame contains the following columns:
   objective and solver, displayed in the HTML page.
 - ``file_objective|file_solver|file_dataset``: The filename of the objective,
   solver, and dataset used for this line.
+- ``file_hash_objective|file_hash_solver|file_hash_dataset``: The MD5 hash of
+  these files, to check that the results match a given version of the code.
 - ``p_obj_{p}``: the value of the objective's parameter ``p``.
 - ``p_solver_{p}``: the value of the solver's parameter ``p``.
 - ``p_dataset_{p}``: the value of the dataset's parameter ``p``.
@@ -40,7 +42,14 @@ The DataFrame contains the following columns:
   ``Objective.evaluate_result`` dictionary.
 
 The remaining columns are informations about the system used to run the
-benchmark, with keys ``{'env_OMP_NUM_THREADS', 'platform', 'platform-architecture', 'platform-release', 'platform-version', 'system-cpus', 'system-processor', 'system-ram (GB)', 'version-cuda', 'version-numpy', 'version-scipy', 'benchmark-git-tag', 'run_date'}``.
+benchmark, with keys ``{'env_OMP_NUM_THREADS', 'platform', 'platform-architecture', 'platform-release', 'platform-version', 'system-cpus', 'system-processor', 'system-ram (GB)', 'version-cuda', 'version-numpy', 'version-scipy', 'run_date'}``.
+
+The columns ``version-benchopt``, ``benchmark-git-tag``, ``benchmark-git-sha``
+and ``benchmark-utils-hash`` record the version of the code used for the run:
+the version of benchopt, the latest git tag and the commit of the benchmark,
+and the MD5 hash of the python files in ``benchmark_utils``. The git columns
+are empty when the benchmark is not in a git repository or git is not
+installed.
 
 
 .. _collect_results:

@@ -2,6 +2,7 @@ import io
 import os
 import re
 import warnings
+import hashlib
 import platform
 import contextlib
 import subprocess
@@ -9,7 +10,6 @@ from shutil import which
 from pathlib import Path
 
 from ..config import DEBUG
-from .shell_cmd import _run_shell
 
 
 def _get_processor_name():
@@ -81,19 +81,45 @@ def _get_numpy_libs():
     return libs
 
 
-def _get_git_tag():
-    tag = None
+def _run_git(benchmark_dir, *args):
+    "Return the output of a git command, or None if it fails."
     try:
-        err, tag = _run_shell(
-            "git describe --tags --abbrev=0", return_output=True
+        res = subprocess.run(
+            ["git", "-C", str(benchmark_dir), *args],
+            capture_output=True, text=True,
         )
-        if err != 0:
-            raise RuntimeError(err)
-    except Exception as err:
-        if DEBUG:
-            print(err, tag)
-        tag = None
-    return tag
+    except OSError:  # git is not installed
+        return None
+    if DEBUG and res.returncode != 0:
+        print(res.stderr)
+    return res.stdout.strip() if res.returncode == 0 else None
+
+
+def _get_folder_hash(folder):
+    "MD5 hash of the python files in a folder, or None if it does not exist."
+    files = sorted(Path(folder).rglob("*.py"))
+    if not files:
+        return None
+    hasher = hashlib.md5()
+    for f in files:
+        hasher.update(f.relative_to(folder).as_posix().encode())
+        hasher.update(f.read_bytes())
+    return hasher.hexdigest()
+
+
+def get_benchmark_info(benchmark_dir):
+    "Return the version of benchopt and of the benchmark code."
+    from benchopt import __version__
+    return {
+        "version-benchopt": __version__,
+        "benchmark-git-tag": _run_git(
+            benchmark_dir, "describe", "--tags", "--abbrev=0"
+        ),
+        "benchmark-git-sha": _run_git(benchmark_dir, "rev-parse", "HEAD"),
+        "benchmark-utils-hash": _get_folder_hash(
+            Path(benchmark_dir) / "benchmark_utils"
+        ),
+    }
 
 
 def get_sys_info():
@@ -128,8 +154,5 @@ def get_sys_info():
     info["version-numpy"] = np.__version__
     info["version-numpy-libs"] = _get_numpy_libs()
     info["version-scipy"] = scipy.__version__
-
-    # Info on benchmark version
-    info["benchmark-git-tag"] = _get_git_tag()
 
     return info

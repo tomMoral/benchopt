@@ -1087,3 +1087,57 @@ def test_repetition_reloads_seeded_data(no_debug_log):
 
     seeds = set(re.findall(r"#SET_OBJECTIVE#(\d+)", out.output))
     assert len(seeds) == 3, out.output
+
+
+@pytest.mark.parametrize('use_git', [True, False])
+def test_code_version_in_results(no_debug_log, use_git, monkeypatch,
+                                 tmp_path):
+    # The results record the version of the code that produced them.
+    monkeypatch.chdir(tmp_path)  # outside of any git repository
+    import subprocess
+    from benchopt import __version__
+    from benchopt.utils.dynamic_modules import get_file_hash
+
+    with temp_benchmark(benchmark_utils={"__init__.py": ""}) as bench:
+        bdir = bench.benchmark_dir
+        sha, tag = None, None
+        if use_git:
+            git = ["git", "-C", str(bdir), "-c", "user.name=a",
+                   "-c", "user.email=a@a"]
+            subprocess.run([*git, "init", "-q"], check=True)
+            subprocess.run([*git, "add", "."], check=True)
+            subprocess.run([*git, "commit", "-qm", "init"], check=True)
+            subprocess.run([*git, "tag", "v0.1"], check=True)
+            tag = "v0.1"
+            sha = subprocess.run(
+                [*git, "rev-parse", "HEAD"], check=True,
+                capture_output=True, text=True
+            ).stdout.strip()
+        with CaptureCmdOutput(delete_result_files=False) as out:
+            run([str(bdir), "--no-plot", "-d", "test-dataset", "-n", "1"],
+                standalone_mode=False)
+        df = read_results(bench.get_result_files()[0])
+        for kind, fname in [("objective", "objective.py"),
+                            ("solver", "solvers/test_solver.py"),
+                            ("dataset", "datasets/test_dataset.py")]:
+            hash_ = get_file_hash(bdir / fname)
+            assert (df[f"file_hash_{kind}"] == hash_).all()
+
+    # No git error is printed when the benchmark is not a git repository.
+    out.check_output("fatal", repetition=0)
+    assert df["benchmark-git-sha"].unique().tolist() == [sha]
+    assert df["benchmark-git-tag"].unique().tolist() == [tag]
+    assert (df["version-benchopt"] == __version__).all()
+    assert df["benchmark-utils-hash"].notna().all()
+
+
+def test_run_git_without_git(monkeypatch, tmp_path, capsys):
+    # Missing git gives no info and prints nothing.
+    from benchopt.utils.sys_info import get_benchmark_info
+
+    monkeypatch.setenv("PATH", str(tmp_path))
+    info = get_benchmark_info(tmp_path)
+    assert info["benchmark-git-sha"] is None
+    assert info["benchmark-git-tag"] is None
+    assert info["benchmark-utils-hash"] is None
+    assert capsys.readouterr() == ("", "")

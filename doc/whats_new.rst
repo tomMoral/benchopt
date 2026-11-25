@@ -21,8 +21,22 @@ CLI
   :ref:`run_grouping`. By `Bruno Aristimunha`_ and `Thomas Moreau`_ (:gh:`903`)
 
 
+API
+~~~
+
+- The results record the version of the benchmark code: the commit
+  ``benchmark-git-sha``, the hash of each component file
+  ``file_hash_{objective,solver,dataset}`` and of the ``benchmark_utils``
+  folder ``benchmark-utils-hash``, and the version of benchopt
+  ``version-benchopt``. By `Thomas Moreau`_ (:gh:`XXXX`)
+
+
 FIX
 ~~~
+
+- Getting the git tag of the benchmark no longer goes through a shell, and
+  runs in the benchmark folder instead of the current directory. It is
+  computed once per run. By `Thomas Moreau`_ (:gh:`XXXX`)
 
 - Short labels in the report no longer merge names formatted with a
   ``parameter_template``, which are kept as is, and never give the same

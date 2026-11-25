@@ -52,7 +52,7 @@ Columns fall into four groups:
 | Curve | `stop_val`, `time`, `objective_value` | One row per `stop_val` (the sampled point). `time` is solver-only seconds (see caveat). `objective_value` is the main metric used for plotting. |
 | Extra metrics | `objective_<name>` | One column per key returned by `Objective.evaluate_result()` (e.g. `objective_train_loss`). |
 | Parameters | `p_solver_<param>`, `p_dataset_<param>`, `p_objective_<param>` | One column per parameter, split out of the parametrized name. |
-| Provenance | `run_date`, `benchmark-git-tag`, `platform*`, `version-*`, `system-*`, `env-*`, `file_*` | Environment/reproducibility metadata. |
+| Provenance | `run_date`, `benchmark-*`, `platform*`, `version-*`, `system-*`, `env-*`, `file_*` | Environment/reproducibility metadata. |
 
 The `name` columns are convenient for grouping; the `p_*` columns are better
 for filtering on a single parameter.

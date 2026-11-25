@@ -127,10 +127,13 @@ def _run_meta(benchmark, dataset, objective, solver, rep):
         'run_id': solver.run_id_,
         'sampling_strategy': sampling_strategy,
         'file_objective': objective._module_filename.name,
+        'file_hash_objective': objective._file_hash,
         **{f"p_obj_{k}": v for k, v in objective._parameters.items()},
         'file_solver': f"solvers/{solver._module_filename.name}",
+        'file_hash_solver': solver._file_hash,
         **{f"p_solver_{k}": v for k, v in solver._parameters.items()},
         'file_dataset': f"datasets/{dataset._module_filename.name}",
+        'file_hash_dataset': dataset._file_hash,
         **{f"p_dataset_{k}": v for k, v in dataset._parameters.items()},
     }
 

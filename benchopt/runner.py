@@ -6,6 +6,7 @@ from pathlib import Path
 from .callback import _Callback
 from .benchmark import Benchmark
 from .utils.sys_info import get_sys_info
+from .utils.sys_info import get_benchmark_info
 from .utils.pdb_helpers import exception_handler
 from .utils.run_context import use_components
 from .utils.terminal_output import TerminalOutput
@@ -364,6 +365,7 @@ def _run_benchmark(benchmark, solvers=None, forced_solvers=None,
     if df.empty:
         terminal.savefile_status()
         return 1, None
+    df = df.assign(**get_benchmark_info(benchmark.benchmark_dir))
 
     # Save output in parquet file at the resolved output path.
     output_file = save_results(df, output_path)
