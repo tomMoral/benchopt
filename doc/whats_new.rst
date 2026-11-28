@@ -107,7 +107,7 @@ PLOT
   ``marker_size``. By `Thomas Moreau`_ (:gh:`1052`)
 
 - Traces of custom ``scatter`` plots can have ``tags``, and solvers sharing
-  a base name are tagged with it. In the legend of the HTML report, a group
+  a base name are tagged with it. In the sidebar of the HTML report, a group
   of traces is selected by typing tags or solver names, to label, highlight
   or hide them, and views save it. The plot metadata can set the default
   group with ``highlight``. Hovering a legend item highlights its trace.

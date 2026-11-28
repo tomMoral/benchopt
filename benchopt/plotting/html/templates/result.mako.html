@@ -91,6 +91,8 @@
                             % endfor
                             </div>
                         % endfor
+                        <!-- Groups of solvers to label, highlight or hide -->
+                        <div id="group-form-group" class="mt-8 px-8"></div>
                         <div class="flex items-center justify-between mt-8 px-8">
                             <a href="#" class="w-full inline-flex items-center justify-center px-4 py-2 space-x-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" onclick="return saveView()">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
@@ -376,9 +378,6 @@
                     <input id="figsize_height" type="number" min="200" step="10" onchange="setFigSize()" title="Height (px)">
                     <span class="unit">px</span>
                 </div>
-
-                <!-- Groups of solvers to label, highlight or hide -->
-                <div id="legend_group" class="px-10 pt-4"></div>
 
                 <!-- Plot -->
                 <div id="table_container" class="flex flex-col flex-1 gap-4 p-10">

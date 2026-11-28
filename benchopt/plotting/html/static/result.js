@@ -2111,78 +2111,113 @@ const renderLegend = () => {
 // unfolds them. By default, they are unfolded when the curves have tags.
 let groupMenuOpen = null;
 
-// Whether to give the focus back to the group box after a re-render.
+// Whether to give the focus back to the group box after a re-render, and
+// whether its suggestions are open.
 let groupInputRefocus = false;
+let groupSuggestOpen = false;
 
-const chip = (text, onClick, active = false) => {
-  const el = document.createElement('button');
+const styled = (tag, style, text) => {
+  const el = document.createElement(tag);
+  Object.assign(el.style, style);
+  if (text !== undefined) el.textContent = text;
+  return el;
+};
+
+const pill = (text, onClick, active = false) => {
+  const el = styled('button', {
+    fontSize: '0.8rem', borderRadius: '9999px', padding: '0.1rem 0.6rem',
+    border: '1px solid #2563eb', marginRight: '0.3rem',
+    background: active ? '#2563eb' : 'white', color: active ? 'white' : '#1f2937',
+  }, text);
   el.type = 'button';
-  el.textContent = text;
-  el.className = 'text-sm rounded-full px-2 mr-1 mb-1 border '
-    + (active ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300');
   el.addEventListener('click', onClick);
   return el;
 };
 
-const toggle = (text, checked, key) => {
-  const label = document.createElement('label');
-  label.className = 'text-sm text-gray-700';
-  label.style.margin = '0 0.25rem 0.25rem 0.75rem';
-  const box = document.createElement('input');
-  box.type = 'checkbox';
-  box.checked = checked;
-  box.className = 'mr-1';
-  box.addEventListener('change', () => setState({[key]: box.checked}));
-  label.append(box, text);
-  return label;
-};
-
-// Group controls of the legend: a box to type terms, chips for the terms and
-// the tags, and actions on the curves of the group.
+// Group controls in the sidebar: a box to type terms, with suggestions, and
+// actions on the curves of the group.
 const renderGroupSelector = () => {
-  const container = document.getElementById('legend_group');
+  const container = document.getElementById('group-form-group');
   // Only scatter charts apply the groups for now.
   (isChart('scatter') ? show : hide)(container);
   if (!isChart('scatter')) return;
   const terms = groupTerms();
   const setTerms = group => setState({group});
-  // From the keyboard, keep typing in the box after the re-render.
+  // From the keyboard or the suggestions, keep typing after the re-render.
   const typeTerms = group => { groupInputRefocus = true; setTerms(group); };
+  // Curves tagged 'all' are in no group and never hidden by the actions.
+  const curvesIn = inside => getCurves().filter(curve => {
+    const curveData = data(curve);
+    return !(curveData.tags ?? []).includes('all')
+      && inGroup(curveData, terms) === inside;
+  });
   container.innerHTML = '';
 
   const menu = document.createElement('details');
   menu.open = groupMenuOpen ?? (getTags().length > 0 || terms.length > 0);
   menu.addEventListener('toggle', () => { groupMenuOpen = menu.open; });
-  const summary = document.createElement('summary');
-  summary.className = 'text-sm text-gray-700 mb-1';
-  summary.style.cursor = 'pointer';
-  summary.textContent = `Groups${terms.length ? ': ' + terms.join(', ') : ''}`;
+  const summary = styled('summary', {cursor: 'pointer'});
+  summary.className = 'text-sm font-medium text-white';
+  summary.textContent = 'Groups';
+  if (terms.length) {
+    summary.append(styled('span', {color: '#d1d5db', marginLeft: '0.5rem'},
+                          `${curvesIn(true).length} in group`));
+  }
   menu.appendChild(summary);
   container.appendChild(menu);
 
-  const row = document.createElement('div');
-  row.className = 'flex flex-wrap items-center';
-  terms.forEach(term => row.appendChild(
-    chip(`${term} ×`, () => setTerms(terms.filter(t => t !== term)), true)
-  ));
-
-  const input = document.createElement('input');
-  input.type = 'text';
-  input.placeholder = 'Type a tag or solver name, Enter to add';
-  input.className = 'text-sm rounded border border-gray-300 px-2 py-1 mb-1 mr-1';
-  input.style.minWidth = '18rem';
-  input.setAttribute('list', 'legend_group_options');
-  const options = document.createElement('datalist');
-  options.id = 'legend_group_options';
-  ['all', ...getTags(), ...getCurves()].forEach(value => {
-    const option = document.createElement('option');
-    option.value = value;
-    options.appendChild(option);
+  // The terms as chips in the box, followed by the text input.
+  const wrap = styled('div', {position: 'relative', marginTop: '0.25rem'});
+  const box = styled('div', {
+    display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.2rem',
+    background: 'white', borderRadius: '0.375rem', padding: '0.2rem 0.3rem',
   });
-  const addTerm = () => {
-    const term = input.value.trim();
-    if (term && !terms.includes(term)) typeTerms([...terms, term]);
+  terms.forEach(term => {
+    const chip = pill(`${term} ×`, () => setTerms(terms.filter(t => t !== term)), true);
+    chip.style.marginRight = '0';
+    box.appendChild(chip);
+  });
+  const input = styled('input', {
+    flex: '1', minWidth: '6rem', border: 'none', outline: 'none',
+    fontSize: '0.85rem', padding: '0.1rem',
+  });
+  input.type = 'text';
+  input.placeholder = terms.length ? '' : 'Tag or solver name';
+  box.appendChild(input);
+  box.addEventListener('click', () => input.focus());
+  wrap.appendChild(box);
+
+  // Suggestions: 'all', the tags and the solvers matching the typed text.
+  const suggest = styled('div', {
+    position: 'absolute', zIndex: 50, left: 0, right: 0, background: 'white',
+    borderRadius: '0.375rem', boxShadow: '0 4px 12px rgba(0,0,0,.25)',
+    maxHeight: '16rem', overflowY: 'auto', marginTop: '0.2rem',
+  });
+  const renderSuggestions = () => {
+    const typed = input.value.trim().toLowerCase();
+    const options = ['all', ...getTags(), ...getCurves()].filter(
+      o => !terms.includes(o) && o.toLowerCase().includes(typed)
+    );
+    suggest.innerHTML = '';
+    options.forEach(option => {
+      const item = styled('div', {
+        padding: '0.2rem 0.6rem', fontSize: '0.85rem', cursor: 'pointer',
+      }, option);
+      if (option === 'all' || getTags().includes(option)) {
+        item.style.fontWeight = '600';
+      }
+      item.addEventListener('mouseenter', () => { item.style.background = '#e5e7eb'; });
+      item.addEventListener('mouseleave', () => { item.style.background = ''; });
+      // Keep the focus in the box, so that the suggestions stay open.
+      item.addEventListener('mousedown', event => event.preventDefault());
+      item.addEventListener('click', () => typeTerms([...terms, option]));
+      suggest.appendChild(item);
+    });
+    (groupSuggestOpen && options.length ? show : hide)(suggest);
   };
+  wrap.appendChild(suggest);
+  menu.appendChild(wrap);
+
   // The legend items matching the typed text get a ring, as a preview.
   const preview = () => {
     const typed = input.value.trim();
@@ -2191,46 +2226,65 @@ const renderGroupSelector = () => {
       text.parentElement.style.boxShadow = match ? '0 0 0 2px #2563eb' : '';
     });
   };
-  input.addEventListener('input', () => {
-    // Picking a suggestion adds it right away.
-    if ([...options.options].some(o => o.value === input.value)) addTerm();
-    else preview();
+  input.addEventListener('focus', () => { groupSuggestOpen = true; renderSuggestions(); });
+  input.addEventListener('blur', () => {
+    // A re-render removes the box: keep the suggestions open then.
+    if (!groupInputRefocus) { groupSuggestOpen = false; renderSuggestions(); }
   });
+  input.addEventListener('input', () => { renderSuggestions(); preview(); });
   input.addEventListener('keydown', event => {
-    if (event.key === 'Enter') addTerm();
-    if (event.key === 'Backspace' && !input.value && terms.length) {
+    const term = input.value.trim();
+    if (event.key === 'Enter' && term && !terms.includes(term)) {
+      typeTerms([...terms, term]);
+    } else if (event.key === 'Backspace' && !input.value && terms.length) {
       typeTerms(terms.slice(0, -1));
+    } else if (event.key === 'Escape') {
+      if (input.value) {
+        input.value = '';
+        preview();
+      } else {
+        groupSuggestOpen = false;
+      }
+      renderSuggestions();
     }
   });
-  row.append(input, options);
 
-  row.appendChild(toggle('Label', groupLabel(), 'group_label'));
-  row.appendChild(toggle('Highlight', groupHighlight(), 'group_highlight'));
-  // Curves tagged 'all' are in no group and never hidden by these buttons.
-  const curvesIn = inside => getCurves().filter(curve => {
-    const curveData = data(curve);
-    return !(curveData.tags ?? []).includes('all')
-      && inGroup(curveData, terms) === inside;
+  // Actions: label and highlight the group, and a menu to hide curves.
+  const actions = styled('div', {
+    display: 'flex', alignItems: 'center', marginTop: '0.4rem',
   });
-  const hideGroup = chip('Hide group', () => setState({
-    hidden_curves: [...new Set([...state().hidden_curves, ...curvesIn(true)])]
-  }));
-  hideGroup.style.marginLeft = '0.75rem';
-  row.append(
-    hideGroup,
-    chip('Hide others', () => setState({hidden_curves: curvesIn(false)})),
-    chip('Show all', purgeHiddenCurves),
+  actions.append(
+    pill('Label', () => setState({group_label: !groupLabel()}), groupLabel()),
+    pill('Highlight', () => setState({group_highlight: !groupHighlight()}), groupHighlight()),
   );
-  menu.appendChild(row);
+  const visibility = styled('details', {position: 'relative'});
+  const visSummary = styled('summary', {
+    cursor: 'pointer', fontSize: '0.8rem', color: 'white', listStyle: 'none',
+  }, 'Visibility ▾');
+  const visPanel = styled('div', {
+    position: 'absolute', zIndex: 50, right: 0, background: 'white',
+    borderRadius: '0.375rem', boxShadow: '0 4px 12px rgba(0,0,0,.25)',
+    whiteSpace: 'nowrap', padding: '0.2rem 0',
+  });
+  [
+    ['Hide group', () => [...new Set([...state().hidden_curves, ...curvesIn(true)])]],
+    ['Hide others', () => curvesIn(false)],
+    ['Show all', () => []],
+  ].forEach(([text, hidden]) => {
+    const item = styled('div', {
+      padding: '0.2rem 0.8rem', fontSize: '0.85rem', cursor: 'pointer',
+    }, text);
+    item.addEventListener('mouseenter', () => { item.style.background = '#e5e7eb'; });
+    item.addEventListener('mouseleave', () => { item.style.background = ''; });
+    item.addEventListener('click', () => setState({hidden_curves: hidden()}));
+    visPanel.appendChild(item);
+  });
+  visibility.append(visSummary, visPanel);
+  visibility.style.marginLeft = 'auto';
+  actions.appendChild(visibility);
+  menu.appendChild(actions);
 
-  const tags = getTags().filter(tag => !terms.includes(tag));
-  if (tags.length) {
-    const tagRow = document.createElement('div');
-    tagRow.className = 'flex flex-wrap items-center text-sm text-gray-500';
-    tagRow.append('Tags:\u00a0');
-    tags.forEach(tag => tagRow.appendChild(chip(tag, () => setTerms([...terms, tag]))));
-    menu.appendChild(tagRow);
-  }
+  renderSuggestions();
   if (groupInputRefocus) input.focus();
   groupInputRefocus = false;
 };
