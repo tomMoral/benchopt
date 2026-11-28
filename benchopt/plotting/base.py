@@ -196,14 +196,16 @@ class BasePlot(ParametrizedNameMixin, DependenciesMixin, ABC):
             data = self.get_metadata(df, **kwargs)
             data["type"] = self.type
             data["data"] = self.plot(df, **kwargs)
+            if self.type in ("scatter", "bar_chart", "boxplot"):
+                for trace in data["data"]:
+                    tag = solver_tags.get(trace["label"])
+                    if tag and tag not in trace.setdefault("tags", []):
+                        trace["tags"].append(tag)
             if self.type == "scatter":
                 for trace in data["data"]:
                     trace.setdefault(
                         "description", descriptions.get(trace["label"])
                     )
-                    tag = solver_tags.get(trace["label"])
-                    if tag and tag not in trace.setdefault("tags", []):
-                        trace["tags"].append(tag)
             elif self.type == "table":
                 data["data"] = [
                     [_describe_cell(c, descriptions) for c in row]

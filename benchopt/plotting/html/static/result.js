@@ -59,6 +59,7 @@ const setState = (partialState) => {
 
   // Hide the size controls; renderPlot re-shows them for plot charts.
   hide(document.getElementById('figsize_controls'));
+  renderGroupSelector();
 
   if  (isChart('table')) {
     renderTable();
@@ -2088,7 +2089,6 @@ const renderLegend = () => {
   show(container);
 
   legend.innerHTML = '';
-  renderGroupSelector();
 
   // The curves of the group first, then the others, and the hidden ones last.
   const terms = groupTerms();
@@ -2141,6 +2141,9 @@ const toggle = (text, checked, key) => {
 // the tags, and actions on the curves of the group.
 const renderGroupSelector = () => {
   const container = document.getElementById('legend_group');
+  // Only scatter charts apply the groups for now.
+  (isChart('scatter') ? show : hide)(container);
+  if (!isChart('scatter')) return;
   const terms = groupTerms();
   const setTerms = group => setState({group});
   // From the keyboard, keep typing in the box after the re-render.
