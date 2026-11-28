@@ -106,6 +106,7 @@ svg[data-theme="dark"]:has(#goal1:hover) .pt, svg[data-theme="dark"][data-focus=
 .ex { display: none; }
 .pill-btn { cursor: pointer; }
 .sealed { font: italic 500 12px 'IBM Plex Sans', sans-serif; fill: #2a5caa; }
+.mock { font: italic 600 11.5px 'IBM Plex Sans', sans-serif; fill: #c2410c; }
 .barout { font: 600 12.5px 'IBM Plex Sans', sans-serif; fill: #1f2328; }
 .fixed { font: 600 16px 'IBM Plex Sans', sans-serif; fill: #1f2328; }
 .run { font: 500 13px 'IBM Plex Sans', sans-serif; fill: #2a5caa; }
@@ -355,49 +356,40 @@ svg:not([data-theme="light"])[data-example="llm"] .pill-llm .pill-lab, svg:not([
 <text x="1109.076923076923" y="385.5" class="barout" text-anchor="start">0.146</text>
 </g>
 <g class="ex ex-bci">
-<text x="112" y="182" class="card" text-anchor="start">MeanLogReg</text>
+<text x="112" y="182" class="card" text-anchor="start">MeanPose</text>
 <text x="112" y="282" class="card" text-anchor="start">EEGNet</text>
-<text x="112" y="394" class="cardsub" text-anchor="start">e.g. REVE, a foundation model</text>
-<text x="600" y="370" class="fixed" text-anchor="middle">Every submission decodes the same</text>
-<text x="600" y="394" class="fixed" text-anchor="middle">held-out EEG sessions.</text>
+<text x="112" y="394" class="cardsub" text-anchor="start">e.g. ConvPose, a temporal CNN</text>
+<text x="600" y="370" class="fixed" text-anchor="middle">Every submission predicts hand pose</text>
+<text x="600" y="394" class="fixed" text-anchor="middle">for the same held-out users.</text>
 <a href="https://github.com/neural-interfaces26/2026-competition" target="_top" class="runlink"><text x="1020" y="421" text-anchor="middle" class="run">View the benchmark run →</text></a>
 <text x="548" y="497" class="card dt" text-anchor="start">+ Private data</text>
-<text x="548" y="518" class="cardsub" text-anchor="start">e.g. sealed test sessions</text>
+<text x="548" y="518" class="cardsub" text-anchor="start">e.g. sealed test users</text>
 <path d="M717.5,495.0 v-3.0 a4.5,4.5 0 0 1 9.0,0 v3.0" fill="none" stroke="#2a5caa" stroke-width="2.0"/>
 <rect x="715.0" y="495.0" width="14.0" height="10.0" rx="2.0" fill="#2a5caa"/>
 <image x="878" y="124" width="38" height="38" href="data:image/png;base64,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"/>
-<text x="926" y="140" class="pill" text-anchor="start">Mental command decoding</text>
+<text x="926" y="140" class="pill" text-anchor="start">Hand pose from wrist EMG</text>
 <text x="926" y="160" class="cardsub" text-anchor="start">EEG/EMG Foundation Challenge 2026</text>
 <rect x="908" y="176" width="12" height="12" rx="2" fill="#9aa1ab"/>
-<text x="926" y="186.5" class="legend" text-anchor="start">Warm-up</text>
-<rect x="1013" y="176" width="12" height="12" rx="2" fill="#a9c0e8"/>
-<text x="1031" y="186.5" class="legend dt" text-anchor="start">Sealed test · private</text>
-<text x="880" y="212" class="barlab" text-anchor="start">MeanLogReg</text>
-<rect x="880" y="220" width="199.1" height="17" rx="3" fill="#9aa1ab" stroke="none" stroke-width="2"/>
-<text x="1073.06840319831" y="233.5" class="barval" text-anchor="end">39.6%</text>
-<rect x="880" y="240" width="150" height="17" rx="3" fill="none" stroke="#2a5caa" stroke-width="1.5" stroke-dasharray="4 3"/>
-<path d="M890.9,246.1 v-2.1 a3.1,3.1 0 0 1 6.3,0 v2.1" fill="none" stroke="#2a5caa" stroke-width="1.4"/>
-<rect x="889.1" y="246.1" width="9.8" height="7.0" rx="1.4" fill="#2a5caa"/>
-<text x="906" y="253.0" class="sealed" text-anchor="start">sealed</text>
+<text x="926" y="186.5" class="legend" text-anchor="start">Public test</text>
+<rect x="1036" y="176" width="12" height="12" rx="2" fill="#a9c0e8"/>
+<text x="1054" y="186.5" class="legend dt" text-anchor="start">Sealed test · private</text>
+<text x="880" y="212" class="barlab" text-anchor="start">MeanPose</text>
+<rect x="880" y="220" width="93.6" height="17" rx="3" fill="#9aa1ab" stroke="none" stroke-width="2"/>
+<text x="967.5978835978835" y="233.5" class="barval" text-anchor="end">19.3°</text>
+<rect x="880" y="240" width="199.5" height="17" rx="3" fill="#a9c0e8" stroke="none" stroke-width="2"/>
+<text x="1073.4708994708994" y="253.5" class="barval2" text-anchor="end">24.1°</text>
 <text x="880" y="278" class="barlab" text-anchor="start">EEGNet</text>
-<rect x="880" y="286" width="129.6" height="17" rx="3" fill="#9aa1ab" stroke="none" stroke-width="2"/>
-<text x="1003.5946291119697" y="299.5" class="barval" text-anchor="end">36.2%</text>
-<rect x="880" y="306" width="150" height="17" rx="3" fill="none" stroke="#2a5caa" stroke-width="1.5" stroke-dasharray="4 3"/>
-<path d="M890.9,312.1 v-2.1 a3.1,3.1 0 0 1 6.3,0 v2.1" fill="none" stroke="#2a5caa" stroke-width="1.4"/>
-<rect x="889.1" y="312.1" width="9.8" height="7.0" rx="1.4" fill="#2a5caa"/>
-<text x="906" y="319.0" class="sealed" text-anchor="start">sealed</text>
-<text x="880" y="344" class="barlab hl" text-anchor="start">REVE (your submission)</text>
-<rect x="880" y="352" width="157.1" height="17" rx="3" fill="#0b7a3e" stroke="none" stroke-width="2"/>
-<text x="1031.091586928945" y="365.5" class="barval" text-anchor="end">37.5%</text>
-<rect x="880" y="372" width="150" height="17" rx="3" fill="none" stroke="#0b7a3e" stroke-width="1.5" stroke-dasharray="4 3"/>
-<path d="M890.9,378.1 v-2.1 a3.1,3.1 0 0 1 6.3,0 v2.1" fill="none" stroke="#0b7a3e" stroke-width="1.4"/>
-<rect x="889.1" y="378.1" width="9.8" height="7.0" rx="1.4" fill="#0b7a3e"/>
-<text x="906" y="385.0" class="sealed" text-anchor="start">sealed</text>
-<line x1="949.4" y1="216" x2="949.4" y2="241" stroke="#1f2328" stroke-width="1.6" stroke-dasharray="3 3"/>
-<line x1="949.4" y1="282" x2="949.4" y2="307" stroke="#1f2328" stroke-width="1.6" stroke-dasharray="3 3"/>
-<line x1="949.4" y1="348" x2="949.4" y2="373" stroke="#1f2328" stroke-width="1.6" stroke-dasharray="3 3"/>
-<text x="949.3579463159929" y="405" class="tick" text-anchor="middle">chance</text>
-<text x="1150" y="405" class="tick" text-anchor="end">higher is better · axis from 30%</text>
+<rect x="880" y="286" width="101.7" height="17" rx="3" fill="#9aa1ab" stroke="none" stroke-width="2"/>
+<text x="975.708238851096" y="299.5" class="barval" text-anchor="end">19.6°</text>
+<rect x="880" y="306" width="210.4" height="17" rx="3" fill="#a9c0e8" stroke="none" stroke-width="2"/>
+<text x="1084.4308390022675" y="319.5" class="barval2" text-anchor="end">24.6°</text>
+<text x="880" y="344" class="barlab hl" text-anchor="start">ConvPose (your submission)</text>
+<rect x="880" y="352" width="86.1" height="17" rx="3" fill="#0b7a3e" stroke="none" stroke-width="2"/>
+<text x="960.1451247165533" y="365.5" class="barval" text-anchor="end">18.9°</text>
+<rect x="880" y="372" width="184.1" height="17" rx="3" fill="url(#mixed)" stroke="none" stroke-width="2"/>
+<text x="1070.126984126984" y="385.5" class="barout" text-anchor="start">23.4°</text>
+<text x="880" y="405" class="mock" text-anchor="start">sealed: mock values</text>
+<text x="1150" y="405" class="tick" text-anchor="end">lower is better</text>
 </g>
 </g>
 </svg>
